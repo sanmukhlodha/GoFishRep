@@ -12,6 +12,21 @@ var connection = mysql.createConnection({
 
 connection.connect();
 
+var truncateAITable =function(){
+
+    var query = connection.query('TRUNCATE turns',function(err, rows){
+        console.log("Truncated table turns");
+    
+    });
+
+}
+
+
+
+
+truncateAITable();
+
+
 var cardid = 1;
 var num_players = 0;
 var Cards;
@@ -254,33 +269,7 @@ io.on('connection', function(socket){
         }
     });
 
-    socket.on("hint",function(name){
-        console.log("Hint called by "+ name);
-        var i =0;
-        var found = false;
-        for(i=0;i<newPlayer.p_cards.length;i++) {
-            var rankIterator = newPlayer.p_cards[i].rank;
-            var select = {rank : rankIterator};
-            var query = connection.query('SELECT * FROM turns WHERE ?', select,function(err, rows) {
-            if (err) throw err;
-            for (var j in rows) {
-                console.log('For card ' + rankIterator +'Player ID ', rows[j].pid);
-                found = true;
-                for(var k = 0; k < Players.length ; k++) {
-                    if(Players[k].p_id == rows[j].pid) {
-                        var hint = new hintObject(Players[k],rank);
-                        console.log("Ask "+Players[k].p_name);
-                        io.socket.emit('hint',hintObject);
-                        break;
-                    }
-                }
-                break;
-            }
-        });
-            if(found) 
-                break;
-        }
-    });
+   
 
     socket.on('myName' , function(name){
         console.log('new player with name: ' + name);
@@ -315,8 +304,8 @@ io.on('connection', function(socket){
                     newPlayer.stackCount[indexOf(askedCards[0].rank)] = 0;
                     newPlayer.numberOfStacks++;
                     var playerInfo = new PlayerInfo(newPlayer.p_id,newPlayer.p_name,newPlayer.numberOfStacks);
-                    var post  = {pid: newPlayer.p_id, rank:number};
-                    var query = connection.query('DELETE FROM turns WHERE ?', post, function(err, result) {
+                    var post  = {pid: newPlayer.p_id, rank:askedCards[0].rank};
+                    var query = connection.query('DELETE FROM turns WHERE ?',post, function(err, result) {
                         if(!err) console.log("Could not delete");
                     });
                     console.log(query.sql);
@@ -324,7 +313,11 @@ io.on('connection', function(socket){
                 }
 
                 var askedPlayer = removeCards(p_id,askedCards[0].rank);
-
+                var post  = {pid: p_id, rank:askedCards[0].rank};
+                var query = connection.query('DELETE FROM turns WHERE ?',post, function(err, result)                              {
+                        if(!err) console.log("Could not delete");
+                    });
+                console.log(query.sql);
                 askedPlayer.stackCount[indexOf(askedCards[0].rank)]-=askedCards.length;
                 removePlayer(askedPlayer, false);
                 console.log("Asked Player Removed:"+askedPlayer.p_id);
@@ -384,6 +377,49 @@ io.on('connection', function(socket){
             }
         }
     });
+    
+     socket.on("hint",function(name){
+            console.log("Hint called by "+ name);
+            var i =0;
+            var found = false;
+            for(i=0;i<newPlayer.p_cards.length;i++)
+            {
+                
+                var rankIterator = newPlayer.p_cards[i].rank;
+                var select = {rank : rankIterator};
+                var query = connection.query('SELECT * FROM turns WHERE ?', select,function(err, rows) {
+                       if (err) throw err;
+                        console.log("Total matched hints for card "+select.rank +" is : "+ rows.length);
+                        for (var j in rows) {
+                                
+                                console.log('For card ' + select.rank +'Player ID ', rows[j].pid);
+                                found = true;
+                                
+                                for(var k = 0; k < Players.length ; k++)
+                                {
+                                    console.log("Player id : "+Players[k].p_id);
+                                    console.log("Result pid :"+rows[j].pid);
+                                    if(Players[k].p_id == rows[j].pid && rows[j].pid != newPlayer.p_id)
+                                    {
+                                        var hint = new hintObject(Players[k],rows[j].rank);
+                                        console.log("Ask "+Players[k].p_name);
+                                        socket.emit('hint',hint);
+                                        found = true;        
+                                        break;
+                                    }
+                                }
+                                break;
+                        }
+                    });
+                if(found) 
+                    break;
+            }
+            if(!found)
+                socket.emit('hint',null);
+            
+        });
+    
+    
     
     //ViP: Remove player on diconnection or refresh
     socket.on('disconnect', function(socket){

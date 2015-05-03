@@ -11,6 +11,14 @@
       <script src="http://www-scf.usc.edu/~slodha/css12/app.js"></script>
       <script src="/socket.io/socket.io.js"></script>
       <title>Go Fish</title>
+           
+    <style>
+        .modal-dialog 
+        {
+            left:0%;
+            top: 25%
+        }
+    </style>
   </head>
   <body>
     <div ng-app="appModule" ng-controller="gameController">
@@ -94,6 +102,21 @@
                 
              </div>
         </div>
+        
+        <div id="myModal" class="modal">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <button type="button" class="close" data-dismiss="modal" aria-hidden="true">&times;</button>
+                        <h4 class="modal-title" id="modaltitle"></h4>
+                    </div>
+                    <div class="modal-body" id="modalbody">
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        
       </div> 
   </body>
 </html>

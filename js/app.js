@@ -1,6 +1,11 @@
 var app = angular.module('appModule',[]);
 var socket;
 app.controller('gameController',function($scope){
+    
+     
+    
+    
+    
     $scope.sendName = function(){
         socket.emit('myName', $scope.name);
         socket.emit('requestCards',$scope.name);
@@ -18,11 +23,11 @@ app.controller('gameController',function($scope){
             $scope.number = imgName.charAt(0);
         }
          var myAudio = document.getElementById(imgName)
-         var msg = new SpeechSynthesisUtterance('Hello World');
-         window.speechSynthesis.speak(msg);
+        /* var msg = new SpeechSynthesisUtterance('Hello World');
+         window.speechSynthesis.speak(msg);*/
          
-        /* myAudio.src = "http://www-scf.usc.edu/~slodha/css12/voices/"+imgName+".mp3"
-         myAudio.play();*/
+         myAudio.src = "http://www-scf.usc.edu/~slodha/css12/voices/"+imgName+".mp3"
+         myAudio.play();
         $scope.$apply($scope.number);
     }
     
@@ -62,7 +67,19 @@ app.controller('gameController',function($scope){
         });
         
         socket.on('hint',function(hintObject){
-            alert("You can ask "+ hintObject.Player.p_name + "for card of rank "+hintObject.Rank);
+            if(hintObject != null)
+            {
+                  $("#myModal").modal('show');
+                $('#modaltitle').html('Your Hint!');
+                $('#modalbody').html("You can ask "+ hintObject.Player.p_name + " for card of rank "+hintObject.Rank);
+            }
+            else
+            {
+                $("#myModal").modal('show');
+                $('#modaltitle').html('Your Hint!');
+                $('#modalbody').html("No hints at this time");
+            }
+            
         });
         
         socket.on('gameOver',function(player){

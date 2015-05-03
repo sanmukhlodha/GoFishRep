@@ -110,6 +110,17 @@ var addCardsToTableStack = function(player) {
     }        
 }
 
+var StatusObject = function(currPlayer, askedPlayer, rank, result){
+    var self = this;
+    self.currPlayer = currPlayer;
+    self.askedPlayer = askedPlayer;
+    self.rank = rank;
+    self.result = result;
+    return self;
+}
+
+
+
 var hintObject = function(Player,Rank) {
     var self = this;
     self.Player = Player;
@@ -270,6 +281,14 @@ io.on('connection', function(socket){
     });
 
    
+    var getPlayerFromId = function(p_id){
+        for(var i=0; i<Players.length; i++){
+            if(Players[i].p_id == p_id)
+                return Players[i];
+        }
+        return null;
+    }
+    
 
     socket.on('myName' , function(name){
         console.log('new player with name: ' + name);
@@ -288,11 +307,16 @@ io.on('connection', function(socket){
         
         var post  = {pid: newPlayer.p_id, rank:number};
         var query = connection.query('INSERT INTO turns SET ?', post, function(err, result) {
-            if(!err) console.log("Already Exists");
+            if(err) console.log("Already Exists");
         });
         console.log(query.sql); 
 
+        var askedPlayer = getPlayerFromId(p_id);
+        
+        var statusObject = new StatusObject(newPlayer, askedPlayer,number,null); 
+        
         if(askedCards.length > 0) {
+            statusObject.result = "Bingo!";
             if(Cards.length!=0) {
                 newPlayer.stackCount[indexOf(askedCards[0].rank)]+=askedCards.length;
 
@@ -340,6 +364,7 @@ io.on('connection', function(socket){
             }
         }
         else {  // Go fish case
+            statusObject.result = "GoFish!"
             if(Cards.length != 0) {
                 var card = pickRandom();
                 newPlayer.p_cards.push(card);
@@ -376,6 +401,12 @@ io.on('connection', function(socket){
                     gameEnd();
             }
         }
+        
+        io.sockets.emit('status',statusObject);
+        
+        
+        
+        
     });
     
      socket.on("hint",function(name){

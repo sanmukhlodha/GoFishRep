@@ -8,6 +8,7 @@
       <script src="http://www-scf.usc.edu/~slodha/css12/bootstrap.js"></script>
       <script src="http://www-scf.usc.edu/~slodha/css12/angular.js"></script>
       <script src="http://www-scf.usc.edu/~slodha/css12/angular.js"></script>
+      <script src="http://www-scf.usc.edu/~slodha/css12/responsivevoice.js"></script>
       <script src="http://www-scf.usc.edu/~slodha/css12/app.js"></script>
       <script src="/socket.io/socket.io.js"></script>
       <title>Go Fish</title>
@@ -18,21 +19,62 @@
             left:0%;
             top: 25%
         }
-    </style>
-  </head>
+        #gofishImage
+        {
+            margin-left:36%;
+        }
+        #bingoImage
+        {
+            margin-left:40%;
+        }
+        
+        #statusUpdateDiv
+        {
+            padding-top: 45px;
+        }
+        
+        #titlepng
+        {
+            padding-left: 35px;
+        }
+        
+        
+        
+        </style>
+ </head>
   <body>
     <div ng-app="appModule" ng-controller="gameController">
         <div class="col-sm-12" ng-init="initialize()">
-                <h2>Go Fish</h2>
+            <div class="col-sm-4">
+         
+            </div>
+            <div class="col-sm-4">
+                <div id="titlepng"><img width="300" height="80" src="http://www-scf.usc.edu/~slodha/css12/t.png"></div>
+            </div> 
+            <div class="col-sm-4">
+                <h4 class="pull-right">Welcome! {{player.p_name}}</h4>
+            </div>
         </div>
         <div class="col-sm-12">
-            <div class="col-sm-4"></div>
-            <div class="col-sm-4"><h2>
-            {{message}}
-             </h2>
-                </div>
-        <div class="col-sm-4">
-                <h4 class="pull-right">Welcome! {{player.p_name}}</h4>
+            <div class="col-sm-4" id="statusMessage">
+            
+                   <div id="statusUpdateDiv">
+                     <label for="" class="control-label">{{statusMessage}}</label>
+                    </div>
+            </div>
+            <div class="col-sm-4" ng-show="message!='Go Fish!' && message!='Bingo!!' && showName==0">
+                <div id="gofishImage"><img width="100" height="100" src="http://www-scf.usc.edu/~slodha/css12/letsgo2.png"></div>
+            </div> 
+            <div class="col-sm-4" ng-show="message=='Go Fish!'">
+                <div id="gofishImage"><img width="100" height="100" src="http://www-scf.usc.edu/~slodha/css12/gofish.png"></div>
+            </div>
+            <div class="col-sm-4" ng-show="message=='Bingo!!'">
+                <div id="bingoImage"><img width="100" height="100" src="http://www-scf.usc.edu/~slodha/css12/bingo.gif"></div>
+            </div>
+            <div class="col-sm-4">
+            <div ng-repeat="player in players" class="col-sm-12">
+                <div class="pull-right "><label>{{player.p_name}}: {{player.numberOfStacks}}</label></div>
+             </div>
             </div>
         </div>
         <br/>
@@ -77,31 +119,28 @@
                              <option value="K" ng-show="player.stackCount[13]!=0">King</option>
                         </select>
             </div>
-             <div class="form-group col-sm-4">
+             <div class="form-group col-sm-2">
                     <label for="" class="control-label">Go, Test Your Luck!</label>
                     <button class="btn btn-primary form-control" ng-disabled="!turn" ng-click="ask()">Ask For Cards</button>
+             </div>
+            
+             <div class="form-group col-sm-2">
+                    <label for="" class="control-label">You can ask for Hint!</label>
+                    <button class="btn btn-primary form-control" ng-disabled="!turn" ng-click="callHint()">Ask For Hint</button>
              </div>
         </div>
         <div class="col-xs-12">
             <div ng-repeat="card in player.p_cards" class="col-xs-1">
                 <img ng-click="selectCard(card.name)" src="http://www-scf.usc.edu/~slodha/css12/cards/{{card.name}}.png" style="cursor: pointer;">
-                     <audio id="{{card.name}}" hidden="true" controls>
+                    <!-- <audio id="{{card.name}}" hidden="true" controls>
                         <source  type="audio/mpeg">
-                     </audio> 
+                     </audio> --> 
             </div>
-        </div>
-        <div class="col-xs-12">
-            <button class="btn btn-primary form-control" ng-click="callHint()">Hint</button>
         </div>
         <div class="col-sm-12">
                 <hr/>
         </div>
-        <div class="col-sm-12">
-            <div ng-repeat="player in players"  class="col-sm-3">
-                <label>{{player.p_name}}: {{player.numberOfStacks}}</label>
-                
-             </div>
-        </div>
+      
         
         <div id="myModal" class="modal">
             <div class="modal-dialog">

@@ -1,0 +1,99 @@
+<!doctype html>
+<html>
+  <head>
+      <link rel="stylesheet" href="http://www-scf.usc.edu/~slodha/css12/bootstrap.min.css">
+      <link rel="stylesheet" href="http://www-scf.usc.edu/~slodha/css12/bootstrap.css">
+      <link rel="stylesheet" href="http://www-scf.usc.edu/~slodha/css12/customCSS.css">
+      <script src="http://www-scf.usc.edu/~slodha/css12/jquery.js"></script>
+      <script src="http://www-scf.usc.edu/~slodha/css12/bootstrap.js"></script>
+      <script src="http://www-scf.usc.edu/~slodha/css12/angular.js"></script>
+      <script src="http://www-scf.usc.edu/~slodha/css12/angular.js"></script>
+      <script src="http://www-scf.usc.edu/~slodha/css12/app.js"></script>
+      <script src="/socket.io/socket.io.js"></script>
+      <title>Go Fish</title>
+  </head>
+  <body>
+    <div ng-app="appModule" ng-controller="gameController">
+        <div class="col-sm-12" ng-init="initialize()">
+                <h2>Go Fish</h2>
+        </div>
+        <div class="col-sm-12">
+            <div class="col-sm-4"></div>
+            <div class="col-sm-4"><h2>
+            {{message}}
+             </h2>
+                </div>
+        <div class="col-sm-4">
+                <h4 class="pull-right">Welcome! {{player.p_name}}</h4>
+            </div>
+        </div>
+        <br/>
+        <div class="col-sm-12">
+                <hr/>
+        </div>
+        <div class="col-sm-12" ng-show="showName==1">
+            <div class="form-group col-sm-6">
+                <div class="col-sm-8">
+                    <input type="text" class="form-control" placeholder="Enter Your Name " autocomplete="off" ng-model="name" />
+                </div>
+            
+                <div class="col-sm-2">
+                    <button class="btn btn-primary form-control"  ng-click="sendName()">Play</button>  
+                </div>
+            </div>
+        </div>
+      
+        <div class="col-sm-12" ng-show="showName==0">
+            <div class="form-group col-sm-4">
+                    <label for="askFrom" class="control-label">Who do you pick?</label>
+                    <select class="form-control" ng-model="askedPlayerId">
+                        <option ng-repeat="loopPlayer in players" value="{{loopPlayer.p_id}}" ng-hide="loopPlayer.p_id==player.p_id">{{loopPlayer.p_name}}</option>
+                    </select>
+            </div>
+            <div class="form-group col-sm-4">
+                    <label for="askNumber" class="control-label">Which Card Rank?</label>
+                         <select class="form-control" ng-model="number">
+                             <option >Select Card</option>
+                             <option value="A" ng-show="player.stackCount[1]!=0">Ace</option>
+                             <option value="2" ng-show="player.stackCount[2]!=0">2</option>
+                             <option value="3" ng-show="player.stackCount[3]!=0">3</option>
+                             <option value="4" ng-show="player.stackCount[4]!=0">4</option>
+                             <option value="5" ng-show="player.stackCount[5]!=0">5</option>
+                             <option value="6" ng-show="player.stackCount[6]!=0">6</option>
+                             <option value="7" ng-show="player.stackCount[7]!=0">7</option>
+                             <option value="8" ng-show="player.stackCount[8]!=0">8</option>
+                             <option value="9" ng-show="player.stackCount[9]!=0">9</option>
+                             <option value="10" ng-show="player.stackCount[10]!=0">10</option>
+                             <option value="J" ng-show="player.stackCount[11]!=0">Jack</option>
+                             <option value="Q" ng-show="player.stackCount[12]!=0">Queen</option>
+                             <option value="K" ng-show="player.stackCount[13]!=0">King</option>
+                        </select>
+            </div>
+             <div class="form-group col-sm-4">
+                    <label for="" class="control-label">Go, Test Your Luck!</label>
+                    <button class="btn btn-primary form-control" ng-disabled="!turn" ng-click="ask()">Ask For Cards</button>
+             </div>
+        </div>
+        <div class="col-xs-12">
+            <div ng-repeat="card in player.p_cards" class="col-xs-1">
+                <img ng-click="selectCard(card.name)" src="http://www-scf.usc.edu/~slodha/css12/cards/{{card.name}}.png" style="cursor: pointer;">
+                     <audio id="{{card.name}}" hidden="true" controls>
+                        <source  type="audio/mpeg">
+                     </audio> 
+            </div>
+        </div>
+        <div class="col-xs-12">
+            <button class="btn btn-primary form-control" ng-click="callHint()">Hint</button>
+        </div>
+        <div class="col-sm-12">
+                <hr/>
+        </div>
+        <div class="col-sm-12">
+            <div ng-repeat="player in players"  class="col-sm-3">
+                <label>{{player.p_name}}: {{player.numberOfStacks}}</label>
+                
+             </div>
+        </div>
+      </div> 
+  </body>
+</html>

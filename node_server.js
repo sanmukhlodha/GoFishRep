@@ -2,7 +2,7 @@ var app = require('express')();
 var http = require('http').Server(app);
 var io = require('socket.io')(http);
 var mysql = require('mysql');
-
+var playerCnt = 0;
 var connection = mysql.createConnection({
   host     : 'localhost',
   user     : 'root',
@@ -58,8 +58,9 @@ var indexOf =function(rank) {
 
 
 
-var Player = function(id,name,cards) {
+var Player = function(index,id,name,cards) {
     var self = this;
+    self.index = index;
     self.p_id = id;
     self.p_name = name;
     self.p_cards = cards;
@@ -256,8 +257,10 @@ io.on('connection', function(socket){
             console.log("Card Removed"+cardReturned.name);
             player_cards[i] = cardReturned;
         }
-        newPlayer = new Player(socket.id,name,player_cards);
-
+        
+        
+        newPlayer = new Player(playerCnt,socket.id,name,player_cards);
+        playerCnt++;
         for(i =0;i< NUM_DEAL;i++){
             //console.log(indexOf(player_cards[i].rank));
             newPlayer.stackCount[indexOf(player_cards[i].rank)]++;
@@ -381,12 +384,11 @@ io.on('connection', function(socket){
                 Players.push(newPlayer);
                 // console.log("Player Pushed:"+newPlayer.p_id);
                 newPlayer.turn = false;
-
+                var nextIndex = (newPlayer.index+1)%Players.length;
                 for(var i=0;i<Players.length;i++) {
-                    if(Players[i].p_id == newPlayer.p_id){
+                    if(Players[i].index == nextIndex){
                         console.log("i previous::: " +i);
                         console.log("players length:::  "+ Players.length);
-                        i = (i+1)%Players.length;
                         console.log("i later::: "+i);
                         io.sockets.emit('turn',Players[i].p_id);
                         break;

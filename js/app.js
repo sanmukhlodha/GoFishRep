@@ -12,6 +12,8 @@ app.controller('gameController',function($scope){
     }
     
     $scope.ask = function(){
+        $scope.turn = false;
+        $scope.$apply($scope.turn);
         socket.emit('ask',$scope.number,$scope.askedPlayerId)
     }
     
@@ -166,7 +168,11 @@ app.controller('gameController',function($scope){
                 $scope.turn = false;
             }
                 else
+            {
+                $scope.turn = true;
+                $scope.$apply($scope.turn);
                 $scope.message = "Bingo!!"
+            }
             $scope.$apply($scope.message);
             $scope.player = player;
             $scope.$apply($scope.player);

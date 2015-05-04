@@ -2,10 +2,6 @@ var app = angular.module('appModule',[]);
 var socket;
 app.controller('gameController',function($scope){
     
-     
-    
-    
-    
     $scope.sendName = function(){
         socket.emit('myName', $scope.name);
         socket.emit('requestCards',$scope.name);
@@ -107,19 +103,14 @@ app.controller('gameController',function($scope){
     
     
     $scope.initialize = function(){
-        
-        
-   
-       socket = io();
-       
+        socket = io();
         $scope.askedPlayerId = 0;
         $scope.showName = 1;
+        $scope.max_lim = false;
         $scope.turn = false;
         $scope.player = null;
         $scope.disableButton = false;
    
-        
-        
         $(document).keypress(function(event){
             if(String.fromCharCode(event.which) == 'h' || String.fromCharCode(event.which) == 'H')
 	       {
@@ -150,7 +141,14 @@ app.controller('gameController',function($scope){
 				  
                   break;
             }   
-        });    
+        }); 
+        
+        socket.on('maximumLimit',function(obj){
+            $scope.max_lim = true;
+            $scope.statusMessage = obj;
+            $scope.$apply($scope.statusMessage);
+        });
+        
         socket.on('playersInfoObject',function(players){
             $scope.players = players;
             $scope.$apply($scope.players);

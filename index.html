@@ -7,9 +7,8 @@
       <script src="http://www-scf.usc.edu/~slodha/css12/jquery.js"></script>
       <script src="http://www-scf.usc.edu/~slodha/css12/bootstrap.js"></script>
       <script src="http://www-scf.usc.edu/~slodha/css12/angular.js"></script>
-      <script src="http://www-scf.usc.edu/~slodha/css12/angular.js"></script>
       <script src="http://www-scf.usc.edu/~slodha/css12/responsivevoice.js"></script>
-      <script src="http://www-scf.usc.edu/~slodha/css12/app.js"></script>
+      <script src="http://www-scf.usc.edu/~vpuranda/app.js"></script>
       <script src="/socket.io/socket.io.js"></script>
       <title>Go Fish</title>
            
@@ -88,7 +87,7 @@
                 </div>
             
                 <div class="col-sm-2">
-                    <button class="btn btn-primary form-control"  ng-click="sendName()">Play</button>  
+                    <button class="btn btn-primary form-control" ng-disabled="max_lim" ng-click="sendName()">Play</button>  
                 </div>
             </div>
         </div>

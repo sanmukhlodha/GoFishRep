@@ -242,44 +242,50 @@ app.get('/', function(req, res){
 
 io.on('connection', function(socket){
     var newPlayer;
+    console.log("number of players:  " + num_players);
     socket.on('requestCards',function(name){
         num_players++;
-
-        if(num_players==1) {
-            createDeck();
-        }
-
-        stackShuffle();
-        var player_cards =  new Array(NUM_DEAL);
-
-        for(i = 0; i < NUM_DEAL; i++) {
-            var cardReturned = stackDeal();
-            console.log("Card Removed"+cardReturned.name);
-            player_cards[i] = cardReturned;
-        }
-        
-        
-        newPlayer = new Player(playerCnt,socket.id,name,player_cards);
-        playerCnt++;
-        for(i =0;i< NUM_DEAL;i++){
-            //console.log(indexOf(player_cards[i].rank));
-            newPlayer.stackCount[indexOf(player_cards[i].rank)]++;
-            if(newPlayer.stackCount[indexOf(player_cards[i].rank)] == 4) {
-                newPlayer.p_cards = removeRank(newPlayer.p_cards,card.rank);
-                newPlayer.stackCount[indexOf(player_cards[i].rank)] = 0;
-                newPlayer.numberOfStacks++;
-                var playerInfo = new PlayerInfo(newPlayer.p_id,newPlayer.p_name,newPlayer.numberOfStacks);
-                io.sockets.emit('updatePlayerStackCount',playerInfo);
+        console.log("number of players:  " + num_players);
+        if(num_players > 4) {
+            console.log("Maximum Number of players reached...");
+            io.sockets.emit('maximumLimit', 'Maximum Players Reached... Come back later!');
+        } else {
+            if(num_players==1) {
+                createDeck();
             }
-            //console.log(newPlayer.stackCount[indexOf(player_cards[i].rank)]);
-        } 
-        displayStack(newPlayer.stackCount);
-        Players.push(newPlayer);
 
-        socket.emit('sendCards',newPlayer);
-        if(num_players == 1) {
-            console.log("Emiting turn for 1st player");
-            socket.emit('turn',newPlayer.p_id);
+            stackShuffle();
+            var player_cards =  new Array(NUM_DEAL);
+
+            for(i = 0; i < NUM_DEAL; i++) {
+                var cardReturned = stackDeal();
+                console.log("Card Removed"+cardReturned.name);
+                player_cards[i] = cardReturned;
+            }
+
+
+            newPlayer = new Player(playerCnt,socket.id,name,player_cards);
+            playerCnt++;
+            for(i =0;i< NUM_DEAL;i++){
+                //console.log(indexOf(player_cards[i].rank));
+                newPlayer.stackCount[indexOf(player_cards[i].rank)]++;
+                if(newPlayer.stackCount[indexOf(player_cards[i].rank)] == 4) {
+                    newPlayer.p_cards = removeRank(newPlayer.p_cards,card.rank);
+                    newPlayer.stackCount[indexOf(player_cards[i].rank)] = 0;
+                    newPlayer.numberOfStacks++;
+                    var playerInfo = new PlayerInfo(newPlayer.p_id,newPlayer.p_name,newPlayer.numberOfStacks);
+                    io.sockets.emit('updatePlayerStackCount',playerInfo);
+                }
+                //console.log(newPlayer.stackCount[indexOf(player_cards[i].rank)]);
+            } 
+            displayStack(newPlayer.stackCount);
+            Players.push(newPlayer);
+
+            socket.emit('sendCards',newPlayer);
+            if(num_players == 1) {
+                console.log("Emiting turn for 1st player");
+                socket.emit('turn',newPlayer.p_id);
+            }
         }
     });
 
@@ -301,7 +307,7 @@ io.on('connection', function(socket){
     });
 
 
-    socket.on('ask',function(number,p_id){
+     socket.on('ask',function(number,p_id){
         console.log("Cards length"+Cards.length);
         var currPid = p_id;
         console.log("Number:"+number+"+Pid :"+p_id); 
@@ -332,7 +338,7 @@ io.on('connection', function(socket){
                     newPlayer.numberOfStacks++;
                     var playerInfo = new PlayerInfo(newPlayer.p_id,newPlayer.p_name,newPlayer.numberOfStacks);
                     var post  = {pid: newPlayer.p_id, rank:askedCards[0].rank};
-                    var query = connection.query('DELETE FROM turns WHERE ?',post, function(err, result) {
+                    var query = connection.query("DELETE FROM turns WHERE pid = '"+newPlayer.p_id+"' and rank = '"+askedCards[0].rank+"'", function(err, result)                              {
                         if(!err) console.log("Could not delete");
                     });
                     console.log(query.sql);
@@ -341,7 +347,7 @@ io.on('connection', function(socket){
 
                 var askedPlayer = removeCards(p_id,askedCards[0].rank);
                 var post  = {pid: p_id, rank:askedCards[0].rank};
-                var query = connection.query('DELETE FROM turns WHERE ?',post, function(err, result)                              {
+                var query = connection.query("DELETE FROM turns WHERE pid = '"+p_id+"' and rank = '"+askedCards[0].rank+"'", function(err, result)                              {
                         if(!err) console.log("Could not delete");
                     });
                 console.log(query.sql);
@@ -405,9 +411,6 @@ io.on('connection', function(socket){
         }
         
         io.sockets.emit('status',statusObject);
-        
-        
-        
         
     });
     

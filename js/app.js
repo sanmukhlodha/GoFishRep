@@ -48,11 +48,8 @@ app.controller('gameController',function($scope){
 	else
 	{
 		responsiveVoice.speak(stringToPlay,$('#voiceselection').val());
-	
 	}
     }
-    
-    
     $scope.getSuit = function(suit){
         switch(suit)
         {
@@ -199,10 +196,10 @@ app.controller('gameController',function($scope){
         socket.on('gameOver',function(player){
             $scope.disableButton  = true;
             if(player.p_id == $scope.player.p_id)
-                $scope.message = "You Won!!";
+                $scope.statusMessage = "You Won!!";
             else
-                $scope.message = player.p_name+" Won! Sorry!";
-            $scope.$apply($scope.message);
+                $scope.statusMessage = player.p_name+" Won! Sorry!";
+            $scope.$apply($scope.statusMessage);
         });
                   
         socket.on('updatePlayerStackCount',function(player){

@@ -3,8 +3,8 @@ var socket;
 app.controller('gameController',function($scope){
     
     $scope.sendName = function(){
-        socket.emit('myName', $scope.name);
         socket.emit('requestCards',$scope.name);
+        socket.emit('myName', $scope.name);
     }
     
     $scope.ask = function(){
@@ -210,6 +210,7 @@ app.controller('gameController',function($scope){
            {
                if($scope.players[i].p_id == player.p_id)
                {
+                   $('.error').stop().fadeIn(400).delay(3000).fadeOut(400);
                    $scope.players[i].numberOfStacks = player.numberOfStacks;
                    $scope.$apply($scope.players);
                }

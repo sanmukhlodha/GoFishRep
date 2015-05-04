@@ -243,12 +243,12 @@ app.get('/', function(req, res){
 io.on('connection', function(socket){
     var newPlayer;
     console.log("number of players:  " + num_players);
-    socket.on('requestCards',function(name){
+    socket.on('requestCards', function(name){
         num_players++;
         console.log("number of players:  " + num_players);
         if(num_players > 4) {
             console.log("Maximum Number of players reached...");
-            io.sockets.emit('maximumLimit', 'Maximum Players Reached... Come back later!');
+            socket.emit('maximumLimit', 'Maximum Players Reached... Come back later!');
         } else {
             if(num_players==1) {
                 createDeck();
@@ -300,10 +300,14 @@ io.on('connection', function(socket){
     
 
     socket.on('myName' , function(name){
-        console.log('new player with name: ' + name);
-        var newPlayerInfo = new PlayerInfo(socket.id,name,0);
-        PlayersInfo.push(newPlayerInfo);
-        io.sockets.emit('playersInfoObject',PlayersInfo);
+        if(num_players > 4) {
+            console.log("Maximum Number of players reached...");
+        } else {
+            console.log('new player with name: ' + name);
+            var newPlayerInfo = new PlayerInfo(socket.id,name,0);
+            PlayersInfo.push(newPlayerInfo);
+            io.sockets.emit('playersInfoObject',PlayersInfo);
+        }
     });
 
 
